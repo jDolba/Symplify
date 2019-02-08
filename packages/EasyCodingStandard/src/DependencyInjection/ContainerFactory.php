@@ -2,6 +2,7 @@
 
 namespace Symplify\EasyCodingStandard\DependencyInjection;
 
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
 
@@ -9,11 +10,8 @@ final class ContainerFactory
 {
     public function create(): ContainerInterface
     {
-        $kernel = new EasyCodingStandardKernel();
+        $kernel = new EasyCodingStandardKernel([], $this->isDebug());
         $kernel->boot();
-
-        // this is require to keep CLI verbosity independent on AppKernel dev/prod mode
-        putenv('SHELL_VERBOSITY=0');
 
         return $kernel->getContainer();
     }
@@ -23,12 +21,15 @@ final class ContainerFactory
      */
     public function createWithConfigs(array $configs): ContainerInterface
     {
-        $kernel = new EasyCodingStandardKernel($configs);
+        $kernel = new EasyCodingStandardKernel($configs, $this->isDebug());
         $kernel->boot();
 
-        // this is require to keep CLI verbosity independent on AppKernel dev/prod mode
-        putenv('SHELL_VERBOSITY=0');
-
         return $kernel->getContainer();
+    }
+
+    private function isDebug(): bool
+    {
+        $argvInput = new ArgvInput();
+        return (bool) $argvInput->hasParameterOption(['--debug', '-v', '-vv', '-vvv']);
     }
 }

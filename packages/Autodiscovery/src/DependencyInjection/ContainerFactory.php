@@ -3,17 +3,21 @@
 namespace Symplify\Autodiscovery\DependencyInjection;
 
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Console\Input\ArgvInput;
 
 final class ContainerFactory
 {
     public function create(): ContainerInterface
     {
-        $appKernel = new AutodiscoveryKernel();
-        $appKernel->boot();
+        $autodiscoveryKernel = new AutodiscoveryKernel($this->isDebug());
+        $autodiscoveryKernel->boot();
 
-        // this is require to keep CLI verbosity independent on AppKernel dev/prod mode
-        putenv('SHELL_VERBOSITY=0');
+        return $autodiscoveryKernel->getContainer();
+    }
 
-        return $appKernel->getContainer();
+    private function isDebug(): bool
+    {
+        $argvInput = new ArgvInput();
+        return (bool) $argvInput->hasParameterOption(['--debug', '-v', '-vv', '-vvv']);
     }
 }

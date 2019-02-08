@@ -13,6 +13,11 @@ final class AutodiscoveryKernel extends Kernel
 {
     use SimpleKernelTrait;
 
+    public function __construct(bool $isDebug)
+    {
+        parent::__construct('prod', $isDebug);
+    }
+
     public function registerContainerConfiguration(LoaderInterface $loader): void
     {
         $loader->load(__DIR__ . '/../../config/config.yml');

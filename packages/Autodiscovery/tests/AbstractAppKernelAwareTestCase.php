@@ -3,14 +3,40 @@
 namespace Symplify\Autodiscovery\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Symplify\Autodiscovery\Tests\DependencyInjection\AudiscoveryTestingKernel;
 
 abstract class AbstractAppKernelAwareTestCase extends TestCase
 {
-    use ContainerAwareTestCaseTrait;
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
 
-    protected function getKernelClass(): string
+    /**
+     * @var ContainerInterface|null
+     */
+    private static $cachedContainer;
+
+    /**
+     * @param mixed[] $data
+     * @param int|string $dataName
+     */
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
-        return AudiscoveryTestingKernel::class;
+        if (self::$cachedContainer === null) {
+            self::$cachedContainer = $this->createContainer();
+        }
+        $this->container = self::$cachedContainer;
+
+        parent::__construct($name, $data, $dataName);
+    }
+
+    private function createContainer(): ContainerInterface
+    {
+        $kernel = new AudiscoveryTestingKernel();
+        $kernel->boot();
+
+        return $kernel->getContainer();
     }
 }

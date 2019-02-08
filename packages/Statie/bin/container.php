@@ -2,7 +2,7 @@
 
 use Symfony\Component\Console\Input\ArgvInput;
 use Symplify\PackageBuilder\Configuration\ConfigFileFinder;
-use Symplify\Statie\HttpKerne\StatieKernel;
+use Symplify\Statie\DependencyInjection\ContainerFactory;
 
 // Detect configuration from input
 ConfigFileFinder::detectFromInput('statie', new ArgvInput());
@@ -10,12 +10,9 @@ ConfigFileFinder::detectFromInput('statie', new ArgvInput());
 // Fallback to file in root
 $configFile = ConfigFileFinder::provide('statie', ['statie.yml', 'statie.yaml']);
 
-// Build DI container
-$statieKernel = new StatieKernel();
+$containerFactory = new ContainerFactory();
 if ($configFile) {
-    $statieKernel->bootWithConfig($configFile);
-} else {
-    $statieKernel->boot();
+    return $containerFactory->createWithConfig($configFile);
 }
 
-return $statieKernel->getContainer();
+return $containerFactory->create();

@@ -3,23 +3,22 @@
 namespace Symplify\BetterPhpDocParser\DependencyInjection;
 
 use Psr\Container\ContainerInterface;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symplify\BetterPhpDocParser\HttpKernel\BetterPhpDocParserKernel;
 
 final class ContainerFactory
 {
-    /**
-     * @return ContainerInterface|SymfonyContainerInterface|Container
-     */
     public function create(): ContainerInterface
     {
-        $appKernel = new BetterPhpDocParserKernel();
-        $appKernel->boot();
+        $betterPhpDocParserKernelKernel = new BetterPhpDocParserKernel($this->isDebug());
+        $betterPhpDocParserKernelKernel->boot();
 
-        // this is require to keep CLI verbosity independent on AppKernel dev/prod mode
-        putenv('SHELL_VERBOSITY=0');
+        return $betterPhpDocParserKernelKernel->getContainer();
+    }
 
-        return $appKernel->getContainer();
+    private function isDebug(): bool
+    {
+        $argvInput = new ArgvInput();
+        return (bool) $argvInput->hasParameterOption(['--debug', '-v', '-vv', '-vvv']);
     }
 }

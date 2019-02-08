@@ -2,30 +2,37 @@
 
 namespace Symplify\Statie\DependencyInjection;
 
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symplify\Statie\HttpKerne\StatieKernel;
+use Symplify\Statie\HttpKernel\StatieKernel;
 
 final class ContainerFactory
 {
     public function create(): ContainerInterface
     {
-        $appKernel = new StatieKernel();
-        $appKernel->boot();
+        $statieKernel = new StatieKernel($this->isDebug());
+        $statieKernel->boot();
 
-        // this is require to keep CLI verbosity independent on AppKernel dev/prod mode
-        putenv('SHELL_VERBOSITY=0');
-
-        return $appKernel->getContainer();
+        return $statieKernel->getContainer();
     }
 
     public function createWithConfig(string $config): ContainerInterface
     {
-        $appKernel = new StatieKernel();
-        $appKernel->bootWithConfig($config);
+        $statieKernel = new StatieKernel($this->isDebug(), $config);
 
-        // this is require to keep CLI verbosity independent on AppKernel dev/prod mode
-        putenv('SHELL_VERBOSITY=0');
+        // in tests we need to invalidate cache
+        if (defined('PHPUNIT_COMPOSER_INSTALL')) {
+            $statieKernel->reboot(sys_get_temp_dir() . '/statie_tests' . rand(1, 100000000));
+        }
 
-        return $appKernel->getContainer();
+        $statieKernel->boot();
+
+        return $statieKernel->getContainer();
+    }
+
+    private function isDebug(): bool
+    {
+        $argvInput = new ArgvInput();
+        return (bool) $argvInput->hasParameterOption(['--debug', '-v', '-vv', '-vvv']);
     }
 }

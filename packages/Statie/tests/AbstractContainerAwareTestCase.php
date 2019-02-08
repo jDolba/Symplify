@@ -4,7 +4,7 @@ namespace Symplify\Statie\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Symplify\Statie\DependencyInjection\ContainerFactory;
+use Symplify\Statie\HttpKernel\StatieKernel;
 
 abstract class AbstractContainerAwareTestCase extends TestCase
 {
@@ -25,7 +25,11 @@ abstract class AbstractContainerAwareTestCase extends TestCase
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         if (self::$cachedContainer === null) {
-            self::$cachedContainer = (new ContainerFactory())->create();
+            $statieKernel = new StatieKernel(true);
+            // always start fresh copy for tests
+            $statieKernel->reboot(sys_get_temp_dir() . '/statie_tests');
+
+            self::$cachedContainer = $statieKernel->getContainer();
         }
 
         $this->container = self::$cachedContainer;

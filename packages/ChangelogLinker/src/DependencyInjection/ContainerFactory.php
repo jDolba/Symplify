@@ -3,29 +3,30 @@
 namespace Symplify\ChangelogLinker\DependencyInjection;
 
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symplify\ChangelogLinker\HttpKernel\ChangelogLinkerKernel;
 
 final class ContainerFactory
 {
     public function create(): ContainerInterface
     {
-        $appKernel = new ChangelogLinkerKernel();
-        $appKernel->boot();
+        $changelogLinkerKernel = new ChangelogLinkerKernel($this->isDebug());
+        $changelogLinkerKernel->boot();
 
-        // this is require to keep CLI verbosity independent on AppKernel dev/prod mode
-        putenv('SHELL_VERBOSITY=0');
-
-        return $appKernel->getContainer();
+        return $changelogLinkerKernel->getContainer();
     }
 
     public function createWithConfig(string $config): ContainerInterface
     {
-        $appKernel = new ChangelogLinkerKernel($config);
-        $appKernel->boot();
+        $changelogLinkerKernel = new ChangelogLinkerKernel($this->isDebug(), $config);
+        $changelogLinkerKernel->boot();
 
-        // this is require to keep CLI verbosity independent on AppKernel dev/prod mode
-        putenv('SHELL_VERBOSITY=0');
+        return $changelogLinkerKernel->getContainer();
+    }
 
-        return $appKernel->getContainer();
+    private function isDebug(): bool
+    {
+        $argvInput = new ArgvInput();
+        return (bool) $argvInput->hasParameterOption(['--debug', '-v', '-vv', '-vvv']);
     }
 }

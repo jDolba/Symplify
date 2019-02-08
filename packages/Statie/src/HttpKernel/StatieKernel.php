@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Symplify\Statie\HttpKerne;
+namespace Symplify\Statie\HttpKernel;
 
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\GlobFileLoader;
@@ -27,10 +27,13 @@ final class StatieKernel extends Kernel
      */
     private $configFile;
 
-    public function bootWithConfig(string $configFile): void
+    public function __construct(bool $isDebug, ?string $configFile = null)
     {
-        $this->configFile = $configFile;
-        $this->boot();
+        parent::__construct('test', $isDebug);
+
+        if ($configFile) {
+            $this->configFile = $configFile;
+        }
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader): void
