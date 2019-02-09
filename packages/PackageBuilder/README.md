@@ -235,33 +235,6 @@ This is common practise in CLI applications, e.g. [PHPUnit](https://phpunit.de/)
 
 <br>
 
-### Render Fancy CLI Exception Anywhere You Need
-
-Do you get exception before getting into Symfony\Console Application, but still want to render it with `-v`, `-vv`, `-vvv` options?
-
-```php
-<?php declare(strict_types=1);
-
-use Symfony\Component\Console\Application;
-use Symfony\Component\DependencyInjection\Container;
-use Symplify\PackageBuilder\Console\ThrowableRenderer;
-
-require_once __DIR__ . '/autoload.php';
-
-try {
-    /** @var Container $container */
-    $container = require __DIR__ . '/container.php';
-
-    $application = $container->get(Application::class);
-    exit($application->run());
-} catch (Throwable $throwable) {
-    (new ThrowableRenderer())->render($throwable);
-    exit($throwable->getCode());
-}
-```
-
-<br>
-
 ### Load Config via `--level` Option in CLI App
 
 In you `bin/your-app` you can use `--level` option as shortcut to load config from `/config` directory.
