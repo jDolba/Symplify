@@ -5,6 +5,7 @@ namespace Symplify\EasyCodingStandard\Tests;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symplify\EasyCodingStandard\DependencyInjection\ContainerFactory;
+use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
 
 abstract class AbstractContainerAwareTestCase extends TestCase
 {
@@ -25,7 +26,11 @@ abstract class AbstractContainerAwareTestCase extends TestCase
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         if (self::$cachedContainer === null) {
-            self::$cachedContainer = (new ContainerFactory())->create();
+            $easyCodingStandardKernel = new EasyCodingStandardKernel(false);
+            $easyCodingStandardKernel->boot();
+            $easyCodingStandardKernel->reboot(sys_get_temp_dir() . '/ecs_tests');
+
+            self::$cachedContainer = $easyCodingStandardKernel->getContainer();
         }
 
         $this->container = self::$cachedContainer;

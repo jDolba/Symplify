@@ -10,7 +10,7 @@ final class ContainerFactory
 {
     public function create(): ContainerInterface
     {
-        $kernel = new EasyCodingStandardKernel([], $this->isDebug());
+        $kernel = new EasyCodingStandardKernel($this->isDebug());
         $kernel->boot();
 
         return $kernel->getContainer();
@@ -21,7 +21,7 @@ final class ContainerFactory
      */
     public function createWithConfigs(array $configs): ContainerInterface
     {
-        $kernel = new EasyCodingStandardKernel($configs, $this->isDebug());
+        $kernel = new EasyCodingStandardKernel($this->isDebug(), $configs);
         $kernel->boot();
 
         return $kernel->getContainer();

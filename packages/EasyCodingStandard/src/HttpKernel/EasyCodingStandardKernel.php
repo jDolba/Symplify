@@ -29,26 +29,24 @@ final class EasyCodingStandardKernel extends Kernel
     /**
      * @var string[]
      */
-    private $extraConfigFiles = [];
+    private $configFiles = [];
 
     /**
      * @param string[] $configFiles
      */
-    public function __construct(array $configFiles = [], bool $debug = true)
+    public function __construct(bool $isDebug, array $configFiles = [])
     {
-        $this->extraConfigFiles = $configFiles;
-
-        $configFilesHash = md5(serialize($configFiles));
+        $this->configFiles = $configFiles;
 
         // debug: require to invalidate container on service files change
-        parent::__construct('ecs_' . $configFilesHash, $debug);
+        parent::__construct('prod', $isDebug);
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader): void
     {
         $loader->load(__DIR__ . '/../../config/config.yml');
 
-        foreach ($this->extraConfigFiles as $configFile) {
+        foreach ($this->configFiles as $configFile) {
             $loader->load($configFile);
         }
     }

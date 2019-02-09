@@ -5,6 +5,7 @@ namespace Symplify\EasyCodingStandard\Tests;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symplify\EasyCodingStandard\DependencyInjection\ContainerFactory;
+use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
 
 abstract class AbstractConfigContainerAwareTestCase extends TestCase
 {
@@ -19,7 +20,11 @@ abstract class AbstractConfigContainerAwareTestCase extends TestCase
      */
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
-        $this->container = (new ContainerFactory())->createWithConfigs([$this->provideConfig()]);
+        $easyCodingStandardKernel = new EasyCodingStandardKernel(false, [$this->provideConfig()]);
+        $easyCodingStandardKernel->boot();
+        $easyCodingStandardKernel->reboot(sys_get_temp_dir() . '/ecs_tests');
+
+        $this->container = $easyCodingStandardKernel->getContainer();
 
         parent::__construct($name, $data, $dataName);
     }
